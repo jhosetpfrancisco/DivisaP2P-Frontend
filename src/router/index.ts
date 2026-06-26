@@ -1,12 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/features/home/HomeView.vue'
 import { authRoutes } from '@/features/auth/routes'
+import { perfilRoutes } from '@/features/perfil/routes'
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', name: 'home', component: HomeView },
     ...authRoutes,
+    ...perfilRoutes,
     // Las rutas de cada feature se irán agregando aquí (ofertas, etc.)
   ],
 })
