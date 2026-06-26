@@ -6,4 +6,9 @@ export const authRoutes: RouteRecordRaw[] = [
     name: 'registro',
     component: () => import('./views/RegistroView.vue'),
   },
+  {
+    path: '/login',
+    name: 'login',
+    component: () => import('./views/LoginView.vue'),
+  },
 ]
