@@ -4,6 +4,7 @@ import { authRoutes } from '@/features/auth/routes'
 import { perfilRoutes } from '@/features/perfil/routes'
 import { ofertasRoutes } from '@/features/ofertas/routes'
 import { transaccionesRoutes } from '@/features/transacciones/routes'
+import { notificacionesRoutes } from '@/features/notificaciones/routes'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -13,7 +14,7 @@ const router = createRouter({
     ...perfilRoutes,
     ...ofertasRoutes,
     ...transaccionesRoutes,
-    // Las rutas de cada feature se irán agregando aquí (notificaciones, etc.)
+    ...notificacionesRoutes,
   ],
 })
 
