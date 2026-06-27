@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import AppLayout from '@/shared/layout/AppLayout.vue'
 import { BaseButton, BaseInput, BaseCard, BaseBadge } from '@/components/ui'
-import { useAuthStore } from '@/features/auth/stores/auth.store'
 import { ofertasService, type OfertaDto } from '../services/ofertas.service'
 
-const auth = useAuthStore()
 const ofertas = ref<OfertaDto[]>([])
 const loading = ref(false)
 const mensaje = ref('')
@@ -57,43 +54,41 @@ onMounted(cargar)
 </script>
 
 <template>
-  <AppLayout :rol="auth.rol ?? undefined">
-    <div class="mx-auto max-w-4xl">
-      <div class="mb-6 flex items-center justify-between">
-        <h1 class="text-2xl font-bold text-foreground">Mis ofertas</h1>
-        <RouterLink to="/ofertas/nueva"><BaseButton variant="primary">Publicar oferta</BaseButton></RouterLink>
-      </div>
-
-      <p v-if="mensaje" class="mb-3 text-sm text-info">{{ mensaje }}</p>
-
-      <BaseCard>
-        <p v-if="loading" class="text-sm text-foreground-soft">Cargando…</p>
-        <p v-else-if="!ofertas.length" class="text-sm text-foreground-soft">Aún no has publicado ofertas.</p>
-
-        <ul v-else class="flex flex-col gap-3">
-          <li
-            v-for="o in ofertas"
-            :key="o.id"
-            class="flex flex-wrap items-center justify-between gap-3 rounded-base border border-border px-4 py-3 text-sm"
-          >
-            <div>
-              <BaseBadge :variant="estadoVariant(o.estado)">{{ o.estado }}</BaseBadge>
-              <span class="ml-2 font-medium text-foreground">{{ o.tipoOperacion }}</span>
-              {{ o.divisaOrigen }} → {{ o.divisaDestino }} ·
-              {{ o.montoDisponible }}/{{ o.montoTotal }} {{ o.divisaOrigen }}
-            </div>
-
-            <div v-if="o.estado === 'Activa'" class="flex items-center gap-2">
-              <div class="w-32">
-                <BaseInput v-model.number="edicion[o.id]" type="number" />
-              </div>
-              <BaseButton variant="secondary" @click="guardar(o.id)">Guardar T.C.</BaseButton>
-              <BaseButton variant="danger" @click="cancelar(o.id)">Cancelar</BaseButton>
-            </div>
-            <span v-else class="text-foreground-soft">T.C. {{ o.tipoCambio }}</span>
-          </li>
-        </ul>
-      </BaseCard>
+  <div class="mx-auto max-w-4xl">
+    <div class="mb-6 flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-foreground">Mis ofertas</h1>
+      <RouterLink to="/app/ofertas/nueva"><BaseButton variant="primary">Publicar oferta</BaseButton></RouterLink>
     </div>
-  </AppLayout>
+
+    <p v-if="mensaje" class="mb-3 text-sm text-info">{{ mensaje }}</p>
+
+    <BaseCard>
+      <p v-if="loading" class="text-sm text-foreground-soft">Cargando…</p>
+      <p v-else-if="!ofertas.length" class="text-sm text-foreground-soft">Aún no has publicado ofertas.</p>
+
+      <ul v-else class="flex flex-col gap-3">
+        <li
+          v-for="o in ofertas"
+          :key="o.id"
+          class="flex flex-wrap items-center justify-between gap-3 rounded-base border border-border px-4 py-3 text-sm"
+        >
+          <div>
+            <BaseBadge :variant="estadoVariant(o.estado)">{{ o.estado }}</BaseBadge>
+            <span class="ml-2 font-medium text-foreground">{{ o.tipoOperacion }}</span>
+            {{ o.divisaOrigen }} → {{ o.divisaDestino }} ·
+            {{ o.montoDisponible }}/{{ o.montoTotal }} {{ o.divisaOrigen }}
+          </div>
+
+          <div v-if="o.estado === 'Activa'" class="flex items-center gap-2">
+            <div class="w-32">
+              <BaseInput v-model.number="edicion[o.id]" type="number" />
+            </div>
+            <BaseButton variant="secondary" @click="guardar(o.id)">Guardar T.C.</BaseButton>
+            <BaseButton variant="danger" @click="cancelar(o.id)">Cancelar</BaseButton>
+          </div>
+          <span v-else class="text-foreground-soft">T.C. {{ o.tipoCambio }}</span>
+        </li>
+      </ul>
+    </BaseCard>
+  </div>
 </template>

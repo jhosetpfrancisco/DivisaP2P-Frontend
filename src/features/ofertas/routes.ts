@@ -1,28 +1,25 @@
 import type { RouteRecordRaw } from 'vue-router'
 
+// Rutas hijas de /app (paths relativos, sin barra inicial).
 export const ofertasRoutes: RouteRecordRaw[] = [
   {
-    path: '/ofertas',
+    path: 'ofertas',
     name: 'ofertas',
     component: () => import('./views/OfertasView.vue'),
-    meta: { requiresAuth: true },
   },
   {
-    path: '/ofertas/nueva',
+    path: 'ofertas/nueva',
     name: 'ofertas-nueva',
     component: () => import('./views/PublicarOfertaView.vue'),
-    meta: { requiresAuth: true },
   },
   {
-    path: '/ofertas/mias',
+    path: 'ofertas/mias',
     name: 'ofertas-mias',
     component: () => import('./views/MisOfertasView.vue'),
-    meta: { requiresAuth: true },
   },
   {
-    path: '/ofertas/:id',
+    path: 'ofertas/:id',
     name: 'ofertas-detalle',
     component: () => import('./views/OfertaDetalleView.vue'),
-    meta: { requiresAuth: true },
   },
 ]
