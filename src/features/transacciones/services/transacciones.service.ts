@@ -1,4 +1,5 @@
 import http from '@/shared/api/http'
+import type { Paginado } from '@/shared/api/pagination'
 
 export interface TransaccionDto {
   id: number
@@ -56,5 +57,10 @@ export const transaccionesService = {
   /** US-011 — Detalle de una transacción (incluye historial y vouchers). */
   obtener(id: number) {
     return http.get<TransaccionDetalleDto>(`/transacciones/${id}`)
+  },
+
+  /** US-013 — Historial de transacciones del usuario (paginado). */
+  historial(filtro: TransaccionFiltro) {
+    return http.get<Paginado<TransaccionDto>>('/transacciones', { params: filtro })
   },
 }
