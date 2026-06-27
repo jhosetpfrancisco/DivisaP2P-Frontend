@@ -7,4 +7,10 @@ export const transaccionesRoutes: RouteRecordRaw[] = [
     component: () => import('./views/IniciarTransaccionView.vue'),
     meta: { requiresAuth: true },
   },
+  {
+    path: '/transacciones/:id',
+    name: 'transacciones-detalle',
+    component: () => import('./views/TransaccionDetalleView.vue'),
+    meta: { requiresAuth: true },
+  },
 ]
