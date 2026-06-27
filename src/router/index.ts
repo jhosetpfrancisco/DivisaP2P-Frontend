@@ -3,6 +3,7 @@ import HomeView from '@/features/home/HomeView.vue'
 import { authRoutes } from '@/features/auth/routes'
 import { perfilRoutes } from '@/features/perfil/routes'
 import { ofertasRoutes } from '@/features/ofertas/routes'
+import { transaccionesRoutes } from '@/features/transacciones/routes'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -11,7 +12,8 @@ const router = createRouter({
     ...authRoutes,
     ...perfilRoutes,
     ...ofertasRoutes,
-    // Las rutas de cada feature se irán agregando aquí (transacciones, etc.)
+    ...transaccionesRoutes,
+    // Las rutas de cada feature se irán agregando aquí (notificaciones, etc.)
   ],
 })
 
