@@ -49,4 +49,19 @@ export const ofertasService = {
   buscar(filtro: OfertaFiltro) {
     return http.get<Paginado<OfertaDto>>('/ofertas', { params: filtro })
   },
+
+  /** US-006 — Listar las ofertas del usuario autenticado. */
+  listarMias() {
+    return http.get<OfertaDto[]>('/ofertas/mias')
+  },
+
+  /** US-006 — Editar el tipo de cambio de una oferta propia. */
+  actualizar(id: number, tipoCambio: number) {
+    return http.put<{ mensaje: string }>(`/ofertas/${id}`, { tipoCambio })
+  },
+
+  /** US-006 — Cancelar una oferta propia. */
+  cancelar(id: number) {
+    return http.delete<{ mensaje: string }>(`/ofertas/${id}`)
+  },
 }
