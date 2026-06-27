@@ -16,7 +16,7 @@ async function onSubmit() {
   loading.value = true
   try {
     await auth.login({ ...form })
-    router.push('/')
+    router.push('/app')
   } catch (e: unknown) {
     const err = e as { response?: { data?: { mensaje?: string } } }
     error.value = err.response?.data?.mensaje ?? 'No se pudo iniciar sesión'

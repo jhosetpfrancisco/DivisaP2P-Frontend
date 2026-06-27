@@ -1,22 +1,20 @@
 import type { RouteRecordRaw } from 'vue-router'
 
+// Rutas hijas de /app (paths relativos, sin barra inicial).
 export const transaccionesRoutes: RouteRecordRaw[] = [
   {
-    path: '/transacciones',
+    path: 'transacciones',
     name: 'transacciones',
     component: () => import('./views/TransaccionesView.vue'),
-    meta: { requiresAuth: true },
   },
   {
-    path: '/transacciones/nueva',
+    path: 'transacciones/nueva',
     name: 'transacciones-nueva',
     component: () => import('./views/IniciarTransaccionView.vue'),
-    meta: { requiresAuth: true },
   },
   {
-    path: '/transacciones/:id',
+    path: 'transacciones/:id',
     name: 'transacciones-detalle',
     component: () => import('./views/TransaccionDetalleView.vue'),
-    meta: { requiresAuth: true },
   },
 ]

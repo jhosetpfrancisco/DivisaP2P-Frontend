@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import AppLayout from '@/shared/layout/AppLayout.vue'
 import { BaseButton, BaseInput, BaseSelect, BaseCard } from '@/components/ui'
-import { useAuthStore } from '@/features/auth/stores/auth.store'
 import { perfilService, type CuentaBancariaDto } from '@/features/perfil/services/perfil.service'
 import { ofertasService, type OfertaCreatePayload } from '../services/ofertas.service'
 
 const router = useRouter()
-const auth = useAuthStore()
 
 const cuentas = ref<CuentaBancariaDto[]>([])
 
@@ -59,7 +56,7 @@ async function onSubmit() {
   loading.value = true
   try {
     await ofertasService.crear({ ...form })
-    router.push('/ofertas/mias')
+    router.push('/app/ofertas/mias')
   } catch (e: unknown) {
     const err = e as { response?: { data?: { mensaje?: string } } }
     serverError.value = err.response?.data?.mensaje ?? 'No se pudo publicar la oferta'
@@ -75,44 +72,42 @@ onMounted(async () => {
 </script>
 
 <template>
-  <AppLayout :rol="auth.rol ?? undefined">
-    <div class="mx-auto max-w-xl">
-      <h1 class="mb-6 text-2xl font-bold text-foreground">Publicar oferta</h1>
+  <div class="mx-auto max-w-xl">
+    <h1 class="mb-6 text-2xl font-bold text-foreground">Publicar oferta</h1>
 
-      <BaseCard>
-        <p v-if="!cuentas.length" class="mb-4 text-sm text-warning">
-          Necesitas registrar al menos una cuenta bancaria en tu perfil para publicar ofertas.
-        </p>
+    <BaseCard>
+      <p v-if="!cuentas.length" class="mb-4 text-sm text-warning">
+        Necesitas registrar al menos una cuenta bancaria en tu perfil para publicar ofertas.
+      </p>
 
-        <form class="flex flex-col gap-4" @submit.prevent="onSubmit">
-          <div class="grid grid-cols-2 gap-3">
-            <BaseSelect v-model="form.tipoOperacion" label="Tipo de operación" :options="tipoOperacion" />
-            <BaseInput v-model.number="form.tipoCambio" label="Tipo de cambio" type="number" :error="errors.tipoCambio" />
-          </div>
+      <form class="flex flex-col gap-4" @submit.prevent="onSubmit">
+        <div class="grid grid-cols-2 gap-3">
+          <BaseSelect v-model="form.tipoOperacion" label="Tipo de operación" :options="tipoOperacion" />
+          <BaseInput v-model.number="form.tipoCambio" label="Tipo de cambio" type="number" :error="errors.tipoCambio" />
+        </div>
 
-          <div class="grid grid-cols-2 gap-3">
-            <BaseSelect v-model="form.divisaOrigen" label="Divisa origen" :options="divisas" />
-            <BaseSelect v-model="form.divisaDestino" label="Divisa destino" :options="divisas" />
-          </div>
-          <p v-if="errors.divisas" class="-mt-2 text-xs text-danger">{{ errors.divisas }}</p>
+        <div class="grid grid-cols-2 gap-3">
+          <BaseSelect v-model="form.divisaOrigen" label="Divisa origen" :options="divisas" />
+          <BaseSelect v-model="form.divisaDestino" label="Divisa destino" :options="divisas" />
+        </div>
+        <p v-if="errors.divisas" class="-mt-2 text-xs text-danger">{{ errors.divisas }}</p>
 
-          <BaseInput v-model.number="form.monto" label="Monto" type="number" :error="errors.monto" />
+        <BaseInput v-model.number="form.monto" label="Monto" type="number" :error="errors.monto" />
 
-          <BaseSelect
-            v-model="form.cuentaBancariaId"
-            label="Cuenta bancaria"
-            :options="cuentaOptions"
-            placeholder="Selecciona…"
-            :error="errors.cuenta"
-          />
+        <BaseSelect
+          v-model="form.cuentaBancariaId"
+          label="Cuenta bancaria"
+          :options="cuentaOptions"
+          placeholder="Selecciona…"
+          :error="errors.cuenta"
+        />
 
-          <p v-if="serverError" class="text-sm text-danger">{{ serverError }}</p>
+        <p v-if="serverError" class="text-sm text-danger">{{ serverError }}</p>
 
-          <BaseButton type="submit" variant="primary" block :disabled="loading || !cuentas.length">
-            {{ loading ? 'Publicando…' : 'Publicar oferta' }}
-          </BaseButton>
-        </form>
-      </BaseCard>
-    </div>
-  </AppLayout>
+        <BaseButton type="submit" variant="primary" block :disabled="loading || !cuentas.length">
+          {{ loading ? 'Publicando…' : 'Publicar oferta' }}
+        </BaseButton>
+      </form>
+    </BaseCard>
+  </div>
 </template>
