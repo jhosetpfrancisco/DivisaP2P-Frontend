@@ -19,4 +19,10 @@ export const ofertasRoutes: RouteRecordRaw[] = [
     component: () => import('./views/MisOfertasView.vue'),
     meta: { requiresAuth: true },
   },
+  {
+    path: '/ofertas/:id',
+    name: 'ofertas-detalle',
+    component: () => import('./views/OfertaDetalleView.vue'),
+    meta: { requiresAuth: true },
+  },
 ]
