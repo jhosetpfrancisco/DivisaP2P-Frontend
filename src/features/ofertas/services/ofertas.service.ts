@@ -64,4 +64,14 @@ export const ofertasService = {
   cancelar(id: number) {
     return http.delete<{ mensaje: string }>(`/ofertas/${id}`)
   },
+
+  /** US-007 — Detalle de una oferta. */
+  obtener(id: number) {
+    return http.get<OfertaDto>(`/ofertas/${id}`)
+  },
+
+  /** US-007 — Ofertas compatibles (matching) para una oferta. */
+  matches(id: number) {
+    return http.get<OfertaDto[]>(`/ofertas/${id}/matches`)
+  },
 }
