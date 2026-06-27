@@ -52,4 +52,9 @@ export const transaccionesService = {
   iniciar(ofertaId: number, monto: number) {
     return http.post<TransaccionDetalleDto>('/transacciones', { ofertaId, monto })
   },
+
+  /** US-011 — Detalle de una transacción (incluye historial y vouchers). */
+  obtener(id: number) {
+    return http.get<TransaccionDetalleDto>(`/transacciones/${id}`)
+  },
 }
