@@ -29,7 +29,9 @@ watch(open, (abierto) => {
 
 function validar(): boolean {
   Object.keys(errors).forEach((k) => delete errors[k])
-  if (motivo.value.trim().length < 20) errors.motivo = 'El motivo debe tener al menos 20 caracteres'
+  const largo = motivo.value.trim().length
+  if (largo < 20) errors.motivo = 'El motivo debe tener al menos 20 caracteres'
+  else if (largo > 1000) errors.motivo = 'El motivo no puede superar 1000 caracteres'
   return Object.keys(errors).length === 0
 }
 
@@ -75,6 +77,7 @@ async function confirmar() {
         label="Motivo de la disputa"
         placeholder="Describe el problema con la transacción (mínimo 20 caracteres)"
         :rows="4"
+        :maxlength="1000"
         :error="errors.motivo"
         required
       />
