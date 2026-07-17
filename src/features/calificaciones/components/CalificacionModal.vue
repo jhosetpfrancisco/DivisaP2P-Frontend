@@ -46,7 +46,13 @@ async function confirmar() {
     open.value = false
     emit('calificado')
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { mensaje?: string } } }
+    const err = e as { response?: { status?: number; data?: { mensaje?: string } } }
+    // 409 = ya se había calificado esta transacción: se trata como hecho, se cierra y se oculta el botón.
+    if (err.response?.status === 409) {
+      open.value = false
+      emit('calificado')
+      return
+    }
     serverError.value = err.response?.data?.mensaje ?? 'No se pudo registrar la calificación'
   } finally {
     loading.value = false
@@ -75,6 +81,7 @@ async function confirmar() {
         label="Comentario (opcional)"
         placeholder="Cuéntanos cómo fue la operación (máximo 200 caracteres)"
         :rows="3"
+        :maxlength="200"
         :error="errors.comentario"
       />
       <p class="-mt-2 text-right text-xs text-foreground-soft">{{ form.comentario.length }}/200</p>
