@@ -34,7 +34,11 @@ watch(open, (abierto) => {
 function validar(): boolean {
   Object.keys(errors).forEach((k) => delete errors[k])
   if (!form.numeroOperacion.trim()) errors.numeroOperacion = 'Ingresa el número de operación'
-  if (!form.fechaDeposito) errors.fechaDeposito = 'Ingresa la fecha y hora del depósito'
+  if (!form.fechaDeposito) {
+    errors.fechaDeposito = 'Ingresa la fecha y hora del depósito'
+  } else if (new Date(form.fechaDeposito).getTime() > Date.now()) {
+    errors.fechaDeposito = 'La fecha del depósito no puede ser futura'
+  }
   if (!archivos.value.length) errors.archivo = 'Adjunta el voucher del depósito'
   return Object.keys(errors).length === 0
 }

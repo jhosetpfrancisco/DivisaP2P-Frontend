@@ -134,7 +134,7 @@ onBeforeUnmount(() => {
     </ul>
 
     <span v-if="error || errorArchivo" class="mt-1 block text-xs text-danger">
-      {{ error || errorArchivo }}
+      {{ errorArchivo || error }}
     </span>
   </div>
 </template>
