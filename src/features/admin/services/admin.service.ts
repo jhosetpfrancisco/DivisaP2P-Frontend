@@ -96,10 +96,13 @@ export const adminService = {
     return http.get<Paginado<TransaccionDto>>('/admin/reportes/transacciones', { params: filtro })
   },
 
-  /** US-018 — Exportar el reporte de transacciones filtrado a CSV (descarga). */
-  exportarTransacciones(filtro: Omit<ReporteTransaccionesFiltro, 'pagina' | 'tamanioPagina'>) {
+  /** US-018 — Exportar el reporte de transacciones filtrado (CSV, Excel o PDF). */
+  exportarTransacciones(
+    filtro: Omit<ReporteTransaccionesFiltro, 'pagina' | 'tamanioPagina'>,
+    formato: 'csv' | 'xlsx' | 'pdf' = 'csv',
+  ) {
     return http.get('/admin/reportes/transacciones/export', {
-      params: filtro,
+      params: { ...filtro, formato },
       responseType: 'blob',
     })
   },
