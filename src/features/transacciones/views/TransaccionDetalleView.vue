@@ -11,6 +11,7 @@ import {
   tiempoRestante,
   plazoVencido,
 } from '@/shared/utils/format'
+import CalificacionModal from '@/features/calificaciones/components/CalificacionModal.vue'
 import ReporteDepositoModal from '../components/ReporteDepositoModal.vue'
 import ValidacionDepositoModal from '../components/ValidacionDepositoModal.vue'
 import {
@@ -69,8 +70,20 @@ const voucherAValidar = computed<VoucherDto | null>(() => {
   return delTipo.length ? delTipo[delTipo.length - 1] : null
 })
 
+// US-012 — Calificación de la contraparte (solo en transacciones completadas).
+const calificacionModal = ref(false)
+// La API no expone si ya califiqué; se oculta el botón tras enviar o si responde que ya existe.
+const yaCalifique = ref(false)
+const soyParte = computed(() => soyComprador.value || soyVendedor.value)
+const puedeCalificar = computed(
+  () => tx.value?.estado === 'Completada' && soyParte.value && !yaCalifique.value,
+)
+const contraparte = computed(() =>
+  soyComprador.value ? (tx.value?.vendedorNombre ?? '') : (tx.value?.compradorNombre ?? ''),
+)
+
 // La tarjeta de acciones aparece cuando hay algo que el usuario pueda hacer.
-const hayAcciones = computed(() => puedeReportar.value || puedeValidar.value)
+const hayAcciones = computed(() => puedeReportar.value || puedeValidar.value || puedeCalificar.value)
 
 async function cargar() {
   loading.value = true
@@ -136,6 +149,9 @@ onBeforeUnmount(() => clearInterval(reloj))
           <BaseButton v-if="puedeValidar" variant="primary" @click="validacionModal = true">
             {{ tipoValidacion === 'Pago' ? 'Validar pago' : 'Validar entrega' }}
           </BaseButton>
+          <BaseButton v-if="puedeCalificar" variant="secondary" @click="calificacionModal = true">
+            Calificar contraparte
+          </BaseButton>
         </div>
       </BaseCard>
 
@@ -183,6 +199,13 @@ onBeforeUnmount(() => clearInterval(reloj))
         :tipo="tipoValidacion"
         :voucher="voucherAValidar"
         @validado="cargar"
+      />
+
+      <CalificacionModal
+        v-model="calificacionModal"
+        :transaccion-id="tx.id"
+        :contraparte="contraparte"
+        @calificado="yaCalifique = true"
       />
     </template>
   </div>
