@@ -49,7 +49,7 @@ function validar(): boolean {
   Object.keys(errors).forEach((k) => delete errors[k])
   if (form.divisaOrigen === form.divisaDestino)
     errors.divisas = 'La divisa origen y destino deben ser distintas'
-  if (form.monto < 100 || form.monto > montoMaximo.value)
+  if (!Number.isFinite(form.monto) || form.monto < 100 || form.monto > montoMaximo.value)
     errors.monto = `El monto debe estar entre 100 y ${formatMonto(montoMaximo.value)}`
   if (form.tipoCambio <= 0) errors.tipoCambio = 'El tipo de cambio debe ser mayor a 0'
   if (!form.cuentaBancariaId) errors.cuenta = 'Selecciona una cuenta bancaria'
