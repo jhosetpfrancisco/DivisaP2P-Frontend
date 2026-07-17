@@ -20,6 +20,7 @@ const tamanioPagina = 20
 const totalPaginas = ref(1)
 const loading = ref(false)
 const exportando = ref(false)
+const error = ref('')
 
 const estadoOpts = [
   { label: 'Todos', value: '' },
@@ -32,8 +33,14 @@ const estadoOpts = [
   { label: 'En disputa', value: 'EnDisputa' },
 ]
 
-// Suma del monto operado en la página visible (los totales globales no los expone la API).
-const montoPagina = computed(() => items.value.reduce((acc, t) => acc + t.montoOperado, 0))
+// Totales de la página agrupados por divisa: sumar montos de divisas distintas no tendría sentido.
+const totalesPorDivisa = computed(() => {
+  const acc: Record<string, number> = {}
+  for (const t of items.value) {
+    acc[t.divisaOrigen] = (acc[t.divisaOrigen] ?? 0) + t.montoOperado
+  }
+  return Object.entries(acc).map(([divisa, monto]) => ({ divisa, monto }))
+})
 
 function filtroActual() {
   return {
@@ -45,6 +52,7 @@ function filtroActual() {
 
 async function cargar() {
   loading.value = true
+  error.value = ''
   try {
     const { data } = await adminService.reporteTransacciones({
       ...filtroActual(),
@@ -54,6 +62,10 @@ async function cargar() {
     items.value = data.data
     total.value = data.total
     totalPaginas.value = data.totalPaginas
+  } catch (e: unknown) {
+    const err = e as { response?: { data?: { mensaje?: string } } }
+    error.value = err.response?.data?.mensaje ?? 'No se pudo cargar el reporte'
+    items.value = []
   } finally {
     loading.value = false
   }
@@ -72,13 +84,19 @@ function irPagina(p: number) {
 
 async function exportar() {
   exportando.value = true
+  error.value = ''
   try {
     const respuesta = await adminService.exportarTransacciones(filtroActual())
+    // Fallback con fecha por si el backend no expone Content-Disposition vía CORS.
+    const hoy = new Date().toISOString().slice(0, 10)
     const nombre = nombreDesdeContentDisposition(
       respuesta.headers['content-disposition'],
-      'reporte_transacciones.csv',
+      `reporte_transacciones_${hoy}.csv`,
     )
     descargarBlob(respuesta.data as Blob, nombre)
+  } catch (e: unknown) {
+    const err = e as { response?: { data?: { mensaje?: string } } }
+    error.value = err.response?.data?.mensaje ?? 'No se pudo exportar el reporte'
   } finally {
     exportando.value = false
   }
@@ -107,6 +125,7 @@ onMounted(cargar)
 
     <BaseCard>
       <p v-if="loading" class="text-sm text-foreground-soft">Cargando…</p>
+      <p v-else-if="error" class="text-sm text-danger">{{ error }}</p>
       <p v-else-if="!items.length" class="text-sm text-foreground-soft">
         No hay transacciones para los filtros seleccionados.
       </p>
@@ -138,9 +157,13 @@ onMounted(cargar)
             </tr>
           </tbody>
           <tfoot>
-            <tr class="border-t border-border text-sm font-medium text-foreground">
-              <td class="py-2" colspan="4">Total de la página</td>
-              <td>{{ formatMonto(montoPagina) }}</td>
+            <tr
+              v-for="tot in totalesPorDivisa"
+              :key="tot.divisa"
+              class="border-t border-border text-sm font-medium text-foreground"
+            >
+              <td class="py-2" colspan="4">Total de la página ({{ tot.divisa }})</td>
+              <td>{{ formatMonto(tot.monto, tot.divisa) }}</td>
               <td colspan="2"></td>
             </tr>
           </tfoot>
