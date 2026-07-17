@@ -17,4 +17,26 @@ http.interceptors.request.use((config) => {
   return config
 })
 
+/**
+ * Manejo global de la respuesta:
+ * - 401 (token ausente/expirado/inválido): se limpia la sesión y se redirige al login.
+ * - 403 (autenticado pero sin permiso de negocio): NO cierra sesión — el backend usa 403
+ *   para reglas de negocio (login fallido, acción no permitida), y expulsar sería incorrecto.
+ */
+http.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('rol')
+      localStorage.removeItem('nombre')
+      localStorage.removeItem('usuarioId')
+      if (!window.location.pathname.startsWith('/login')) {
+        window.location.href = '/login'
+      }
+    }
+    return Promise.reject(error)
+  },
+)
+
 export default http
