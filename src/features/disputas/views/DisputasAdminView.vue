@@ -12,6 +12,7 @@ const pagina = ref(1)
 const tamanioPagina = 10
 const totalPaginas = ref(1)
 const loading = ref(false)
+const error = ref('')
 
 const estadoOpts = [
   { label: 'Todas', value: '' },
@@ -21,6 +22,7 @@ const estadoOpts = [
 
 async function cargar() {
   loading.value = true
+  error.value = ''
   try {
     const { data } = await disputasService.listar({
       estado: filtros.estado || undefined,
@@ -30,6 +32,10 @@ async function cargar() {
     items.value = data.data
     total.value = data.total
     totalPaginas.value = data.totalPaginas
+  } catch (e: unknown) {
+    const err = e as { response?: { data?: { mensaje?: string } } }
+    error.value = err.response?.data?.mensaje ?? 'No se pudieron cargar las disputas'
+    items.value = []
   } finally {
     loading.value = false
   }
@@ -64,6 +70,7 @@ onMounted(cargar)
 
     <BaseCard>
       <p v-if="loading" class="text-sm text-foreground-soft">Cargando…</p>
+      <p v-else-if="error" class="text-sm text-danger">{{ error }}</p>
       <p v-else-if="!items.length" class="text-sm text-foreground-soft">No hay disputas que coincidan.</p>
 
       <table v-else class="w-full text-left text-sm">
