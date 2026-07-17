@@ -12,6 +12,7 @@ import {
   plazoVencido,
 } from '@/shared/utils/format'
 import CalificacionModal from '@/features/calificaciones/components/CalificacionModal.vue'
+import DisputaModal from '@/features/disputas/components/DisputaModal.vue'
 import ReporteDepositoModal from '../components/ReporteDepositoModal.vue'
 import ValidacionDepositoModal from '../components/ValidacionDepositoModal.vue'
 import {
@@ -82,8 +83,23 @@ const contraparte = computed(() =>
   soyComprador.value ? (tx.value?.vendedorNombre ?? '') : (tx.value?.compradorNombre ?? ''),
 )
 
+// US-014 — Apertura de disputa. Disponible en los estados intermedios del flujo.
+const disputaModal = ref(false)
+const disputaAbierta = ref(false)
+const ESTADOS_DISPUTABLES = ['PagoReportado', 'PagoConfirmado', 'EntregaReportada']
+const puedeAbrirDisputa = computed(
+  () =>
+    !!tx.value &&
+    ESTADOS_DISPUTABLES.includes(tx.value.estado) &&
+    soyParte.value &&
+    !disputaAbierta.value,
+)
+
 // La tarjeta de acciones aparece cuando hay algo que el usuario pueda hacer.
-const hayAcciones = computed(() => puedeReportar.value || puedeValidar.value || puedeCalificar.value)
+const hayAcciones = computed(
+  () =>
+    puedeReportar.value || puedeValidar.value || puedeCalificar.value || puedeAbrirDisputa.value,
+)
 
 async function cargar() {
   loading.value = true
@@ -152,6 +168,9 @@ onBeforeUnmount(() => clearInterval(reloj))
           <BaseButton v-if="puedeCalificar" variant="secondary" @click="calificacionModal = true">
             Calificar contraparte
           </BaseButton>
+          <BaseButton v-if="puedeAbrirDisputa" variant="danger" @click="disputaModal = true">
+            Abrir disputa
+          </BaseButton>
         </div>
       </BaseCard>
 
@@ -206,6 +225,16 @@ onBeforeUnmount(() => clearInterval(reloj))
         :transaccion-id="tx.id"
         :contraparte="contraparte"
         @calificado="yaCalifique = true"
+      />
+
+      <DisputaModal
+        v-model="disputaModal"
+        :transaccion-id="tx.id"
+        :codigo="tx.codigo"
+        @abierta="
+          disputaAbierta = true
+          cargar()
+        "
       />
     </template>
   </div>
