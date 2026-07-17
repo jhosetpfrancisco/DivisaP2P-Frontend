@@ -8,7 +8,11 @@ export const useAuthStore = defineStore('auth', () => {
   const rol = ref<string | null>(localStorage.getItem('rol'))
   const nombre = ref<string | null>(localStorage.getItem('nombre'))
   // Necesario para saber de qué lado de una transacción está el usuario (comprador o vendedor).
-  const usuarioId = ref<number | null>(Number(localStorage.getItem('usuarioId')) || null)
+  // Comprobación explícita para no perder el id 0 (que sería falsy con `|| null`).
+  const usuarioIdGuardado = localStorage.getItem('usuarioId')
+  const usuarioId = ref<number | null>(
+    usuarioIdGuardado !== null && usuarioIdGuardado !== '' ? Number(usuarioIdGuardado) : null,
+  )
 
   const isAuthenticated = computed(() => !!token.value)
   const esAdmin = computed(() => rol.value === 'ADM')
