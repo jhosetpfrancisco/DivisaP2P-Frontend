@@ -110,6 +110,11 @@ async function cargar() {
   }
 }
 
+function onDisputaAbierta() {
+  disputaAbierta.value = true
+  cargar()
+}
+
 onMounted(() => {
   cargar()
   reloj = setInterval(() => (ahora.value = Date.now()), 20_000)
@@ -231,10 +236,7 @@ onBeforeUnmount(() => clearInterval(reloj))
         v-model="disputaModal"
         :transaccion-id="tx.id"
         :codigo="tx.codigo"
-        @abierta="
-          disputaAbierta = true
-          cargar()
-        "
+        @abierta="onDisputaAbierta"
       />
     </template>
   </div>
