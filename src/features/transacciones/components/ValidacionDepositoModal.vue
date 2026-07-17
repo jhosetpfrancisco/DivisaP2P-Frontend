@@ -34,6 +34,10 @@ watch(open, (abierto) => {
 
 function validar(): boolean {
   Object.keys(errors).forEach((k) => delete errors[k])
+  // Sin comprobante a la vista no se puede confirmar a ciegas; solo se habilita el rechazo.
+  if (!props.voucher && form.aprobar) {
+    errors.aprobar = 'No hay comprobante para revisar; solo puedes rechazar hasta que la contraparte lo reporte.'
+  }
   if (!form.aprobar && form.motivoRechazo.trim().length < 20) {
     errors.motivoRechazo = 'El motivo del rechazo debe tener al menos 20 caracteres'
   }
@@ -83,8 +87,8 @@ async function confirmar() {
       <p v-else class="text-sm text-foreground-soft">No se encontró el comprobante reportado.</p>
 
       <div class="flex flex-col gap-2">
-        <label class="flex items-start gap-2">
-          <input v-model="form.aprobar" type="radio" :value="true" class="mt-1" />
+        <label class="flex items-start gap-2" :class="!voucher && 'opacity-50'">
+          <input v-model="form.aprobar" type="radio" :value="true" class="mt-1" :disabled="!voucher" />
           <span>
             <span class="font-medium text-foreground">Confirmar recepción</span>
             <span class="block text-xs text-foreground-soft">
@@ -101,6 +105,7 @@ async function confirmar() {
             </span>
           </span>
         </label>
+        <span v-if="errors.aprobar" class="text-xs text-danger">{{ errors.aprobar }}</span>
       </div>
 
       <BaseTextarea
