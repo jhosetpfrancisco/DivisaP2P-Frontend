@@ -54,6 +54,11 @@ export interface ReporteDepositoPayload {
   rutaArchivo: string
 }
 
+export interface ValidacionDepositoPayload {
+  aprobar: boolean
+  motivoRechazo?: string
+}
+
 /** Servicio de transacciones — consume los endpoints /api/transacciones del backend. */
 export const transaccionesService = {
   /** US-008 — Iniciar una transacción a partir de una oferta. */
@@ -73,6 +78,15 @@ export const transaccionesService = {
    */
   reportar(id: number, payload: ReporteDepositoPayload) {
     return http.post<{ mensaje: string }>(`/transacciones/${id}/reportar`, payload)
+  },
+
+  /**
+   * US-010 — Validar el depósito reportado por la contraparte.
+   * Al aprobar avanza el flujo; al rechazar la transacción pasa a disputa
+   * y exige un motivo de al menos 20 caracteres.
+   */
+  validar(id: number, payload: ValidacionDepositoPayload) {
+    return http.post<{ mensaje: string }>(`/transacciones/${id}/validar`, payload)
   },
 
   /** US-013 — Historial de transacciones del usuario (paginado). */
