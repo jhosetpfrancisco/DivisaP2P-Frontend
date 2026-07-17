@@ -26,7 +26,9 @@ watch(open, (abierto) => {
 
 function validar(): boolean {
   Object.keys(errors).forEach((k) => delete errors[k])
-  if (motivo.value.trim().length < 30) errors.motivo = 'El motivo debe tener al menos 30 caracteres'
+  const largo = motivo.value.trim().length
+  if (largo < 30) errors.motivo = 'El motivo debe tener al menos 30 caracteres'
+  else if (largo > 300) errors.motivo = 'El motivo no puede superar 300 caracteres'
   return Object.keys(errors).length === 0
 }
 
@@ -67,6 +69,7 @@ async function confirmar() {
         label="Motivo del bloqueo"
         placeholder="Explica el motivo del bloqueo (mínimo 30 caracteres)"
         :rows="3"
+        :maxlength="300"
         :error="errors.motivo"
         required
       />

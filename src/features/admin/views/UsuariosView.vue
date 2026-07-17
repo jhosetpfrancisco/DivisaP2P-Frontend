@@ -17,6 +17,7 @@ const loading = ref(false)
 const seleccionado = ref<UsuarioAdminDto | null>(null)
 const detalleModal = ref(false)
 const bloqueoModal = ref(false)
+const accionError = ref('')
 
 const rolOpts = [
   { label: 'Todos', value: '' },
@@ -80,14 +81,29 @@ function abrirBloqueo(u: UsuarioAdminDto) {
   bloqueoModal.value = true
 }
 
+function mensajeError(e: unknown, fallback: string): string {
+  const err = e as { response?: { data?: { mensaje?: string } } }
+  return err.response?.data?.mensaje ?? fallback
+}
+
 async function desbloquear(u: UsuarioAdminDto) {
-  await adminService.desbloquear(u.id)
-  cargar()
+  accionError.value = ''
+  try {
+    await adminService.desbloquear(u.id)
+    cargar()
+  } catch (e) {
+    accionError.value = mensajeError(e, 'No se pudo desbloquear la cuenta')
+  }
 }
 
 async function aprobar(u: UsuarioAdminDto) {
-  await adminService.aprobarEmpresa(u.id)
-  cargar()
+  accionError.value = ''
+  try {
+    await adminService.aprobarEmpresa(u.id)
+    cargar()
+  } catch (e) {
+    accionError.value = mensajeError(e, 'No se pudo aprobar la empresa')
+  }
 }
 
 onMounted(cargar)
@@ -109,6 +125,7 @@ onMounted(cargar)
     </BaseCard>
 
     <BaseCard>
+      <p v-if="accionError" class="mb-3 text-sm text-danger">{{ accionError }}</p>
       <p v-if="loading" class="text-sm text-foreground-soft">Cargando…</p>
       <p v-else-if="!items.length" class="text-sm text-foreground-soft">No hay usuarios que coincidan.</p>
 
