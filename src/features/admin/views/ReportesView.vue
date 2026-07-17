@@ -82,16 +82,16 @@ function irPagina(p: number) {
   cargar()
 }
 
-async function exportar() {
+async function exportar(formato: 'csv' | 'xlsx' | 'pdf') {
   exportando.value = true
   error.value = ''
   try {
-    const respuesta = await adminService.exportarTransacciones(filtroActual())
+    const respuesta = await adminService.exportarTransacciones(filtroActual(), formato)
     // Fallback con fecha por si el backend no expone Content-Disposition vía CORS.
     const hoy = new Date().toISOString().slice(0, 10)
     const nombre = nombreDesdeContentDisposition(
       respuesta.headers['content-disposition'],
-      `reporte_transacciones_${hoy}.csv`,
+      `reporte_transacciones_${hoy}.${formato}`,
     )
     descargarBlob(respuesta.data as Blob, nombre)
   } catch (e: unknown) {
@@ -114,12 +114,16 @@ onMounted(cargar)
         <BaseInput v-model="filtros.desde" label="Desde" type="date" />
         <BaseInput v-model="filtros.hasta" label="Hasta" type="date" />
         <BaseSelect v-model="filtros.estado" label="Estado" :options="estadoOpts" />
-        <div class="flex items-end gap-2">
+        <div class="flex items-end">
           <BaseButton variant="primary" @click="aplicar">Filtrar</BaseButton>
-          <BaseButton variant="secondary" :disabled="exportando" @click="exportar">
-            {{ exportando ? 'Exportando…' : 'Exportar CSV' }}
-          </BaseButton>
         </div>
+      </div>
+      <div class="mt-3 flex flex-wrap items-center gap-2">
+        <span class="text-sm text-foreground-soft">Exportar:</span>
+        <BaseButton variant="secondary" :disabled="exportando" @click="exportar('csv')">CSV</BaseButton>
+        <BaseButton variant="secondary" :disabled="exportando" @click="exportar('xlsx')">Excel</BaseButton>
+        <BaseButton variant="secondary" :disabled="exportando" @click="exportar('pdf')">PDF</BaseButton>
+        <span v-if="exportando" class="text-sm text-foreground-soft">Exportando…</span>
       </div>
     </BaseCard>
 
@@ -180,7 +184,7 @@ onMounted(cargar)
     </BaseCard>
 
     <p class="mt-4 text-xs text-foreground-soft">
-      La exportación descarga el reporte de transacciones filtrado en formato CSV (compatible con Excel).
+      La exportación descarga el reporte de transacciones filtrado en CSV, Excel (.xlsx) o PDF.
       <RouterLink to="/app/admin/dashboard" class="text-brand-600 hover:underline">Ir al dashboard</RouterLink>
     </p>
   </div>
