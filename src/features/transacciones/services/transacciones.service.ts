@@ -47,6 +47,13 @@ export interface TransaccionFiltro {
   tamanioPagina?: number
 }
 
+export interface ReporteDepositoPayload {
+  numeroOperacion: string
+  fechaDeposito: string
+  nombreArchivo: string
+  rutaArchivo: string
+}
+
 /** Servicio de transacciones — consume los endpoints /api/transacciones del backend. */
 export const transaccionesService = {
   /** US-008 — Iniciar una transacción a partir de una oferta. */
@@ -57,6 +64,15 @@ export const transaccionesService = {
   /** US-011 — Detalle de una transacción (incluye historial y vouchers). */
   obtener(id: number) {
     return http.get<TransaccionDetalleDto>(`/transacciones/${id}`)
+  },
+
+  /**
+   * US-009 — Reportar un depósito (pago o entrega) y adjuntar el voucher.
+   * El backend decide si es voucher de Pago o de Entrega según el estado actual
+   * y quién ejecuta la acción.
+   */
+  reportar(id: number, payload: ReporteDepositoPayload) {
+    return http.post<{ mensaje: string }>(`/transacciones/${id}/reportar`, payload)
   },
 
   /** US-013 — Historial de transacciones del usuario (paginado). */
