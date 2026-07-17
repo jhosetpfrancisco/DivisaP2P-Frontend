@@ -1,5 +1,6 @@
 import http from '@/shared/api/http'
 import type { Paginado } from '@/shared/api/pagination'
+import type { TransaccionDto } from '@/features/transacciones/services/transacciones.service'
 
 export interface UsuarioAdminDto {
   id: number
@@ -24,6 +25,14 @@ export interface UsuarioFiltro {
   rol?: string
   estado?: string
   calificacionMin?: number
+  pagina?: number
+  tamanioPagina?: number
+}
+
+export interface ReporteTransaccionesFiltro {
+  desde?: string
+  hasta?: string
+  estado?: string
   pagina?: number
   tamanioPagina?: number
 }
@@ -80,5 +89,18 @@ export const adminService = {
   /** US-019 — Aprobar una empresa de turismo pendiente de aprobación. */
   aprobarEmpresa(id: number) {
     return http.post<{ mensaje: string }>(`/admin/empresas/${id}/aprobar`)
+  },
+
+  /** US-018 — Reporte de transacciones por periodo (en pantalla, paginado). */
+  reporteTransacciones(filtro: ReporteTransaccionesFiltro) {
+    return http.get<Paginado<TransaccionDto>>('/admin/reportes/transacciones', { params: filtro })
+  },
+
+  /** US-018 — Exportar el reporte de transacciones filtrado a CSV (descarga). */
+  exportarTransacciones(filtro: Omit<ReporteTransaccionesFiltro, 'pagina' | 'tamanioPagina'>) {
+    return http.get('/admin/reportes/transacciones/export', {
+      params: filtro,
+      responseType: 'blob',
+    })
   },
 }
