@@ -6,6 +6,7 @@ import { transaccionesRoutes } from '@/features/transacciones/routes'
 import { perfilRoutes } from '@/features/perfil/routes'
 import { notificacionesRoutes } from '@/features/notificaciones/routes'
 import { adminRoutes } from '@/features/admin/routes'
+import { disputasRoutes } from '@/features/disputas/routes'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -36,6 +37,7 @@ const router = createRouter({
         ...perfilRoutes,
         ...notificacionesRoutes,
         ...adminRoutes,
+        ...disputasRoutes,
       ],
     },
 
