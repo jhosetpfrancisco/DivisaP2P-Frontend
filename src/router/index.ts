@@ -5,6 +5,8 @@ import { ofertasRoutes } from '@/features/ofertas/routes'
 import { transaccionesRoutes } from '@/features/transacciones/routes'
 import { perfilRoutes } from '@/features/perfil/routes'
 import { notificacionesRoutes } from '@/features/notificaciones/routes'
+import { adminRoutes } from '@/features/admin/routes'
+import { disputasRoutes } from '@/features/disputas/routes'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -24,12 +26,18 @@ const router = createRouter({
       component: AppLayout,
       meta: { requiresAuth: true },
       children: [
-        // /app sin sub-ruta → ofertas por defecto.
-        { path: '', redirect: '/app/ofertas' },
+        // /app sin sub-ruta → el admin va a su panel; el resto a ofertas.
+        {
+          path: '',
+          redirect: () =>
+            localStorage.getItem('rol') === 'ADM' ? '/app/admin/dashboard' : '/app/ofertas',
+        },
         ...ofertasRoutes,
         ...transaccionesRoutes,
         ...perfilRoutes,
         ...notificacionesRoutes,
+        ...adminRoutes,
+        ...disputasRoutes,
       ],
     },
 
@@ -38,8 +46,12 @@ const router = createRouter({
   ],
 })
 
+// Rutas públicas donde no tiene sentido estar con la sesión iniciada.
+const RUTAS_INVITADO = ['/login', '/registro', '/registro-empresa']
+
 router.beforeEach((to) => {
   const isAuth = !!localStorage.getItem('token')
+  const rol = localStorage.getItem('rol')
 
   // Ruta protegida sin sesión → login.
   if (to.meta.requiresAuth && !isAuth) {
@@ -47,7 +59,13 @@ router.beforeEach((to) => {
   }
 
   // Con sesión, no tiene sentido ver login/registro → a la app.
-  if (isAuth && (to.path === '/login' || to.path === '/registro')) {
+  if (isAuth && RUTAS_INVITADO.includes(to.path)) {
+    return { path: '/app' }
+  }
+
+  // Ruta restringida por rol (ej: el panel administrativo es solo para ADM).
+  const roles = to.meta.roles as string[] | undefined
+  if (roles && (!rol || !roles.includes(rol))) {
     return { path: '/app' }
   }
 })

@@ -138,6 +138,12 @@ async function onSubmit() {
             Inicia sesión
           </RouterLink>
         </p>
+        <p class="text-center text-sm text-foreground-soft">
+          ¿Eres empresa de turismo?
+          <RouterLink to="/registro-empresa" class="font-medium text-brand-600 hover:underline">
+            Regístrala aquí
+          </RouterLink>
+        </p>
       </form>
     </BaseCard>
   </div>

@@ -12,6 +12,15 @@ export interface RegistroUsuarioPayload {
   aceptaTerminos: boolean
 }
 
+export interface RegistroEmpresaPayload {
+  razonSocial: string
+  ruc: string
+  representanteLegal: string
+  correo: string
+  password: string
+  celular: string
+}
+
 export interface LoginPayload {
   correo: string
   password: string
@@ -31,6 +40,11 @@ export const authService = {
   /** US-001 — Registro de usuario (persona natural). */
   registrar(payload: RegistroUsuarioPayload) {
     return http.post<{ mensaje: string }>('/auth/registro', payload)
+  },
+
+  /** US-019 — Registro de Empresa de Turismo (queda pendiente de aprobación del admin). */
+  registrarEmpresa(payload: RegistroEmpresaPayload) {
+    return http.post<{ mensaje: string }>('/auth/registro-empresa', payload)
   },
 
   /** US-002 — Inicio de sesión (devuelve el JWT). */

@@ -5,6 +5,7 @@ defineProps<{
   rows?: number
   error?: string
   required?: boolean
+  maxlength?: number
 }>()
 
 const model = defineModel<string>()
@@ -18,6 +19,7 @@ const model = defineModel<string>()
     <textarea
       v-model="model"
       :rows="rows ?? 4"
+      :maxlength="maxlength"
       :placeholder="placeholder"
       class="w-full resize-y rounded-base border bg-surface px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-foreground-soft focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
       :class="error ? 'border-danger' : 'border-border'"
