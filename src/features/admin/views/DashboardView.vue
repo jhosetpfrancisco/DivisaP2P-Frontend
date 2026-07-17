@@ -7,6 +7,7 @@ import { adminService, type DashboardDto } from '../services/admin.service'
 
 const data = ref<DashboardDto | null>(null)
 const loading = ref(false)
+const error = ref('')
 
 const kpis = computed(() =>
   data.value
@@ -19,15 +20,21 @@ const kpis = computed(() =>
     : [],
 )
 
+// La UI garantiza los límites anunciados (30 días / top 10) sin depender del backend.
+const evolucion = computed(() => (data.value?.evolucionDiaria ?? []).slice(-30))
+const topUsuarios = computed(() => (data.value?.topUsuarios ?? []).slice(0, 10))
+
 // Altura relativa de cada barra del gráfico de evolución (0–100 %).
-const maxEvolucion = computed(() =>
-  Math.max(1, ...(data.value?.evolucionDiaria ?? []).map((d) => d.cantidad)),
-)
+const maxEvolucion = computed(() => Math.max(1, ...evolucion.value.map((d) => d.cantidad)))
 
 async function cargar() {
   loading.value = true
+  error.value = ''
   try {
     data.value = (await adminService.dashboard()).data
+  } catch (e: unknown) {
+    const err = e as { response?: { data?: { mensaje?: string } } }
+    error.value = err.response?.data?.mensaje ?? 'No se pudieron cargar las métricas'
   } finally {
     loading.value = false
   }
@@ -46,6 +53,10 @@ onMounted(cargar)
     </div>
 
     <p v-if="!data && loading" class="text-sm text-foreground-soft">Cargando métricas…</p>
+    <div v-else-if="!data && error" class="text-sm">
+      <p class="text-danger">{{ error }}</p>
+      <BaseButton variant="secondary" class="mt-3" @click="cargar">Reintentar</BaseButton>
+    </div>
 
     <template v-else-if="data">
       <!-- KPIs principales. -->
@@ -84,9 +95,9 @@ onMounted(cargar)
 
       <!-- Evolución diaria de transacciones (últimos 30 días). -->
       <BaseCard title="Evolución de transacciones (últimos 30 días)" class="mt-5">
-        <div v-if="data.evolucionDiaria.length" class="flex h-40 items-end gap-1">
+        <div v-if="evolucion.length" class="flex h-40 items-end gap-1">
           <div
-            v-for="d in data.evolucionDiaria"
+            v-for="d in evolucion"
             :key="d.fecha"
             class="flex-1 rounded-t bg-brand-500/80 transition hover:bg-brand-600"
             :style="{ height: `${(d.cantidad / maxEvolucion) * 100}%` }"
@@ -98,7 +109,7 @@ onMounted(cargar)
 
       <!-- Top 10 usuarios por volumen del mes. -->
       <BaseCard title="Top 10 usuarios por volumen (mes)" class="mt-5">
-        <table v-if="data.topUsuarios.length" class="w-full text-left text-sm">
+        <table v-if="topUsuarios.length" class="w-full text-left text-sm">
           <thead class="border-b border-border text-xs uppercase text-foreground-soft">
             <tr>
               <th class="py-2">#</th>
@@ -107,7 +118,7 @@ onMounted(cargar)
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(u, i) in data.topUsuarios" :key="u.usuarioId" class="border-b border-border/60">
+            <tr v-for="(u, i) in topUsuarios" :key="u.usuarioId" class="border-b border-border/60">
               <td class="py-2 text-foreground-soft">{{ i + 1 }}</td>
               <td class="font-medium text-foreground">{{ u.nombre }}</td>
               <td class="text-right">{{ formatMonto(u.volumenOperado) }}</td>
