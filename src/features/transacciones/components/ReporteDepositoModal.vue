@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref, watch } from 'vue'
 import { BaseModal, BaseInput, BaseFileInput } from '@/components/ui'
-import { rutaAdjunto } from '@/shared/utils/archivo'
+import { archivosService } from '@/features/archivos/archivos.service'
 import { transaccionesService } from '../services/transacciones.service'
 
 const props = defineProps<{
@@ -48,12 +48,13 @@ async function confirmar() {
   if (!validar()) return
   loading.value = true
   try {
-    const archivo = archivos.value[0]
+    // Se sube el voucher y se reporta con la referencia real que devuelve el backend.
+    const { data: subido } = await archivosService.subir(archivos.value[0])
     await transaccionesService.reportar(props.transaccionId, {
       numeroOperacion: form.numeroOperacion.trim(),
       fechaDeposito: form.fechaDeposito,
-      nombreArchivo: archivo.name,
-      rutaArchivo: rutaAdjunto(`TXN-${props.transaccionId}`, archivo.name),
+      nombreArchivo: subido.nombreArchivo,
+      rutaArchivo: subido.rutaArchivo,
     })
     open.value = false
     emit('reportado')

@@ -12,6 +12,7 @@ import {
   plazoVencido,
 } from '@/shared/utils/format'
 import { descargarBlob } from '@/shared/utils/descarga'
+import { urlArchivo } from '@/shared/utils/archivo'
 import CalificacionModal from '@/features/calificaciones/components/CalificacionModal.vue'
 import DisputaModal from '@/features/disputas/components/DisputaModal.vue'
 import ReporteDepositoModal from '../components/ReporteDepositoModal.vue'
@@ -218,7 +219,15 @@ onBeforeUnmount(() => clearInterval(reloj))
           >
             <span>
               <BaseBadge variant="neutral">{{ v.tipo }}</BaseBadge>
-              {{ v.nombreArchivo }} · Op. {{ v.numeroOperacion }}
+              <a
+                :href="urlArchivo(v.rutaArchivo)"
+                target="_blank"
+                rel="noopener"
+                class="text-brand-600 hover:underline"
+              >
+                {{ v.nombreArchivo }}
+              </a>
+              · Op. {{ v.numeroOperacion }}
             </span>
             <span class="text-foreground-soft">{{ formatFecha(v.fechaDeposito) }}</span>
           </li>
