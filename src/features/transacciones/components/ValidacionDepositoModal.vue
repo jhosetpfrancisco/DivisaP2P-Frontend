@@ -2,6 +2,7 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { BaseModal, BaseTextarea, BaseBadge } from '@/components/ui'
 import { formatFecha } from '@/shared/utils/format'
+import { urlArchivo } from '@/shared/utils/archivo'
 import { transaccionesService, type VoucherDto } from '../services/transacciones.service'
 
 const props = defineProps<{
@@ -83,6 +84,14 @@ async function confirmar() {
         <p class="text-foreground-soft">
           Operación {{ voucher.numeroOperacion }} · Depósito del {{ formatFecha(voucher.fechaDeposito) }}
         </p>
+        <a
+          :href="urlArchivo(voucher.rutaArchivo)"
+          target="_blank"
+          rel="noopener"
+          class="mt-1 inline-block text-brand-600 hover:underline"
+        >
+          Ver comprobante
+        </a>
       </div>
       <p v-else class="text-sm text-foreground-soft">No se encontró el comprobante reportado.</p>
 

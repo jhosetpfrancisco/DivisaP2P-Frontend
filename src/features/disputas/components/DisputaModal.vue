@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref, watch } from 'vue'
 import { BaseModal, BaseTextarea, BaseFileInput } from '@/components/ui'
-import { rutaAdjunto } from '@/shared/utils/archivo'
+import { archivosService } from '@/features/archivos/archivos.service'
 import { disputasService } from '../services/disputas.service'
 
 const props = defineProps<{
@@ -40,10 +40,12 @@ async function confirmar() {
   if (!validar()) return
   loading.value = true
   try {
+    // Se suben las evidencias y se abre la disputa con las rutas reales devueltas.
+    const subidas = await Promise.all(evidencias.value.map((a) => archivosService.subir(a)))
     await disputasService.crear({
       transaccionId: props.transaccionId,
       motivo: motivo.value.trim(),
-      evidencias: evidencias.value.map((a) => rutaAdjunto(`disputa-TXN-${props.transaccionId}`, a.name)),
+      evidencias: subidas.map((r) => r.data.rutaArchivo),
     })
     open.value = false
     emit('abierta')

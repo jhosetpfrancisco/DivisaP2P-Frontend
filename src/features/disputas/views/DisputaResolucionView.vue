@@ -3,6 +3,7 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { BaseCard, BaseBadge, BaseButton, BaseTextarea } from '@/components/ui'
 import { formatFecha, estadoDisputaVariant, etiquetaResolucion } from '@/shared/utils/format'
+import { urlArchivo } from '@/shared/utils/archivo'
 import {
   disputasService,
   type DisputaDto,
@@ -104,9 +105,11 @@ onMounted(cargar)
           <li
             v-for="(ev, i) in disputa.evidencias"
             :key="i"
-            class="rounded-base border border-border px-3 py-2 text-foreground-soft"
+            class="rounded-base border border-border px-3 py-2"
           >
-            {{ ev.split('/').pop() }}
+            <a :href="urlArchivo(ev)" target="_blank" rel="noopener" class="text-brand-600 hover:underline">
+              {{ ev.split('/').pop() }}
+            </a>
           </li>
         </ul>
       </BaseCard>
