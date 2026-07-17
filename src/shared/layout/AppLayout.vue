@@ -23,6 +23,7 @@ const nav = computed(() =>
     ? [
         { label: 'Dashboard', to: '/app/admin/dashboard' },
         { label: 'Usuarios', to: '/app/admin/usuarios' },
+        { label: 'Disputas', to: '/app/admin/disputas' },
       ]
     : [
         { label: 'Ofertas', to: '/app/ofertas' },
