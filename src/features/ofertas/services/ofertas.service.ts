@@ -1,6 +1,12 @@
 import http from '@/shared/api/http'
 import type { Paginado } from '@/shared/api/pagination'
 
+export interface OfertaEscalon {
+  montoDesde: number
+  montoHasta: number
+  tipoCambio: number
+}
+
 export interface OfertaDto {
   id: number
   usuarioId: number
@@ -16,6 +22,7 @@ export interface OfertaDto {
   esVolumenEtu: boolean
   fechaPublicacion: string
   fechaExpiracion: string
+  escalones: OfertaEscalon[]
 }
 
 export interface OfertaCreatePayload {
@@ -25,6 +32,7 @@ export interface OfertaCreatePayload {
   monto: number
   tipoCambio: number
   cuentaBancariaId: number
+  escalones?: OfertaEscalon[]
 }
 
 export interface OfertaFiltro {
