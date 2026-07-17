@@ -11,10 +11,13 @@ import {
   tiempoRestante,
   plazoVencido,
 } from '@/shared/utils/format'
+import { descargarBlob } from '@/shared/utils/descarga'
+import { urlArchivo } from '@/shared/utils/archivo'
 import CalificacionModal from '@/features/calificaciones/components/CalificacionModal.vue'
 import DisputaModal from '@/features/disputas/components/DisputaModal.vue'
 import ReporteDepositoModal from '../components/ReporteDepositoModal.vue'
 import ValidacionDepositoModal from '../components/ValidacionDepositoModal.vue'
+import { construirConstancia } from '../utils/constancia'
 import {
   transaccionesService,
   type TransaccionDetalleDto,
@@ -115,6 +118,13 @@ function onDisputaAbierta() {
   cargar()
 }
 
+// US-011 — Descarga de la constancia (disponible solo con la transacción completada).
+function descargarConstancia() {
+  if (!tx.value) return
+  const html = construirConstancia(tx.value)
+  descargarBlob(new Blob([html], { type: 'text/html' }), `constancia_${tx.value.codigo}.html`)
+}
+
 onMounted(() => {
   cargar()
   reloj = setInterval(() => (ahora.value = Date.now()), 20_000)
@@ -159,6 +169,13 @@ onBeforeUnmount(() => clearInterval(reloj))
           <strong class="text-foreground">Plazo para la siguiente acción:</strong>
           {{ tiempoRestante(tx.fechaLimiteAccion, ahora) }}
         </p>
+
+        <!-- Constancia descargable cuando la transacción está completada (US-011). -->
+        <div v-if="tx.estado === 'Completada'" class="mt-4">
+          <BaseButton variant="secondary" @click="descargarConstancia">
+            Descargar constancia
+          </BaseButton>
+        </div>
       </BaseCard>
 
       <!-- Acciones disponibles según el estado y el rol del usuario. -->
@@ -202,7 +219,15 @@ onBeforeUnmount(() => clearInterval(reloj))
           >
             <span>
               <BaseBadge variant="neutral">{{ v.tipo }}</BaseBadge>
-              {{ v.nombreArchivo }} · Op. {{ v.numeroOperacion }}
+              <a
+                :href="urlArchivo(v.rutaArchivo)"
+                target="_blank"
+                rel="noopener"
+                class="text-brand-600 hover:underline"
+              >
+                {{ v.nombreArchivo }}
+              </a>
+              · Op. {{ v.numeroOperacion }}
             </span>
             <span class="text-foreground-soft">{{ formatFecha(v.fechaDeposito) }}</span>
           </li>

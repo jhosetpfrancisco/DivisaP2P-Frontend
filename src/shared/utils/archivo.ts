@@ -50,3 +50,16 @@ export function formatPeso(bytes: number): string {
 export function rutaAdjunto(carpeta: string, nombreArchivo: string): string {
   return `/uploads/${carpeta}/${nombreArchivo}`
 }
+
+// Origen del backend (sin el sufijo /api): los archivos subidos se sirven como estáticos.
+const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:5180/api').replace(
+  /\/api\/?$/,
+  '',
+)
+
+/** URL absoluta para ver/descargar un archivo servido por el backend a partir de su ruta. */
+export function urlArchivo(ruta: string | null | undefined): string {
+  if (!ruta) return ''
+  if (/^https?:\/\//.test(ruta)) return ruta
+  return `${API_ORIGIN}${ruta.startsWith('/') ? '' : '/'}${ruta}`
+}

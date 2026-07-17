@@ -11,7 +11,13 @@ import {
 const perfil = ref<PerfilDto | null>(null)
 const cuentas = ref<CuentaBancariaDto[]>([])
 
-const datos = reactive({ nombres: '', apellidoPaterno: '', apellidoMaterno: '', celular: '' })
+const datos = reactive({
+  nombres: '',
+  apellidoPaterno: '',
+  apellidoMaterno: '',
+  celular: '',
+  notificacionesCorreo: true,
+})
 const datosMsg = ref('')
 
 const pass = reactive({ passwordActual: '', passwordNueva: '' })
@@ -49,6 +55,7 @@ async function cargar() {
   datos.apellidoPaterno = data.apellidoPaterno ?? ''
   datos.apellidoMaterno = data.apellidoMaterno ?? ''
   datos.celular = data.celular
+  datos.notificacionesCorreo = data.notificacionesCorreo
   cuentas.value = (await perfilService.listarCuentas()).data
 }
 
@@ -122,6 +129,10 @@ onMounted(cargar)
             <BaseInput v-model="datos.apellidoMaterno" label="Apellido materno" />
           </div>
           <BaseInput v-model="datos.celular" label="Celular" required />
+          <BaseCheckbox
+            v-model="datos.notificacionesCorreo"
+            label="Recibir notificaciones por correo (las de la app siempre están activas)"
+          />
           <div class="flex items-center gap-3">
             <BaseButton type="submit" variant="primary">Guardar cambios</BaseButton>
             <span v-if="datosMsg" class="text-sm text-success">{{ datosMsg }}</span>

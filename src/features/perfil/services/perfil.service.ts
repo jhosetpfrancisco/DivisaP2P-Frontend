@@ -14,6 +14,7 @@ export interface PerfilDto {
   celular: string
   estado: string
   correoVerificado: boolean
+  notificacionesCorreo: boolean
   calificacionPromedio: number
   operacionesCompletadas: number
   fechaRegistro: string
@@ -24,6 +25,7 @@ export interface PerfilUpdatePayload {
   apellidoPaterno?: string
   apellidoMaterno?: string
   celular: string
+  notificacionesCorreo: boolean
 }
 
 export interface CambioPasswordPayload {
