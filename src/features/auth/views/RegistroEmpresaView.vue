@@ -87,6 +87,8 @@ async function onSubmit() {
           v-model="form.ruc"
           label="RUC"
           placeholder="20XXXXXXXXX"
+          inputmode="numeric"
+          :maxlength="11"
           :error="errors.ruc"
           required
         />

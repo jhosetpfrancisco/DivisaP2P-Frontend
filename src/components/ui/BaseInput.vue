@@ -5,6 +5,8 @@ defineProps<{
   placeholder?: string
   error?: string
   required?: boolean
+  maxlength?: number
+  inputmode?: 'text' | 'numeric' | 'decimal' | 'tel' | 'email' | 'search' | 'url'
 }>()
 
 const model = defineModel<string | number>()
@@ -18,6 +20,8 @@ const model = defineModel<string | number>()
     <input
       v-model="model"
       :type="type ?? 'text'"
+      :maxlength="maxlength"
+      :inputmode="inputmode"
       :placeholder="placeholder"
       class="w-full rounded-base border bg-surface px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-foreground-soft focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
       :class="error ? 'border-danger' : 'border-border'"
