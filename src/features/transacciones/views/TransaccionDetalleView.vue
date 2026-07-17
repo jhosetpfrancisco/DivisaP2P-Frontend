@@ -12,7 +12,12 @@ import {
   plazoVencido,
 } from '@/shared/utils/format'
 import ReporteDepositoModal from '../components/ReporteDepositoModal.vue'
-import { transaccionesService, type TransaccionDetalleDto } from '../services/transacciones.service'
+import ValidacionDepositoModal from '../components/ValidacionDepositoModal.vue'
+import {
+  transaccionesService,
+  type TransaccionDetalleDto,
+  type VoucherDto,
+} from '../services/transacciones.service'
 
 const route = useRoute()
 const auth = useAuthStore()
@@ -45,6 +50,27 @@ const puedeReportar = computed(() => {
   if (tx.value.estado === 'PagoConfirmado') return soyVendedor.value
   return false
 })
+
+// US-010 — Validación del depósito reportado por la contraparte.
+const validacionModal = ref(false)
+const tipoValidacion = computed<'Pago' | 'Entrega'>(() =>
+  tx.value?.estado === 'EntregaReportada' ? 'Entrega' : 'Pago',
+)
+const puedeValidar = computed(() => {
+  if (!tx.value) return false
+  if (tx.value.estado === 'PagoReportado') return soyVendedor.value
+  if (tx.value.estado === 'EntregaReportada') return soyComprador.value
+  return false
+})
+// Comprobante pendiente de validar: el último del tipo que corresponde al estado.
+const voucherAValidar = computed<VoucherDto | null>(() => {
+  if (!tx.value) return null
+  const delTipo = tx.value.vouchers.filter((v) => v.tipo === tipoValidacion.value)
+  return delTipo.length ? delTipo[delTipo.length - 1] : null
+})
+
+// La tarjeta de acciones aparece cuando hay algo que el usuario pueda hacer.
+const hayAcciones = computed(() => puedeReportar.value || puedeValidar.value)
 
 async function cargar() {
   loading.value = true
@@ -102,10 +128,15 @@ onBeforeUnmount(() => clearInterval(reloj))
       </BaseCard>
 
       <!-- Acciones disponibles según el estado y el rol del usuario. -->
-      <BaseCard v-if="puedeReportar" title="Acciones" class="mb-5">
-        <BaseButton variant="primary" @click="reporteModal = true">
-          {{ tipoReporte === 'Pago' ? 'Reportar pago' : 'Reportar entrega' }}
-        </BaseButton>
+      <BaseCard v-if="hayAcciones" title="Acciones" class="mb-5">
+        <div class="flex flex-wrap gap-2">
+          <BaseButton v-if="puedeReportar" variant="primary" @click="reporteModal = true">
+            {{ tipoReporte === 'Pago' ? 'Reportar pago' : 'Reportar entrega' }}
+          </BaseButton>
+          <BaseButton v-if="puedeValidar" variant="primary" @click="validacionModal = true">
+            {{ tipoValidacion === 'Pago' ? 'Validar pago' : 'Validar entrega' }}
+          </BaseButton>
+        </div>
       </BaseCard>
 
       <BaseCard title="Línea de tiempo" class="mb-5">
@@ -144,6 +175,14 @@ onBeforeUnmount(() => clearInterval(reloj))
         :codigo="tx.codigo"
         :tipo="tipoReporte"
         @reportado="cargar"
+      />
+
+      <ValidacionDepositoModal
+        v-model="validacionModal"
+        :transaccion-id="tx.id"
+        :tipo="tipoValidacion"
+        :voucher="voucherAValidar"
+        @validado="cargar"
       />
     </template>
   </div>
