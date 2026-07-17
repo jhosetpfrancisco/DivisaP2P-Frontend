@@ -44,8 +44,10 @@ async function cargar() {
 function validar(): boolean {
   Object.keys(errors).forEach((k) => delete errors[k])
   if (!form.resolucion) errors.resolucion = 'Selecciona una resolución'
-  if (form.comentario.trim().length < 50)
+  const largo = form.comentario.trim().length
+  if (largo < 50)
     errors.comentario = 'El comentario debe justificar la decisión (mínimo 50 caracteres)'
+  else if (largo > 1000) errors.comentario = 'El comentario no puede superar 1000 caracteres'
   return Object.keys(errors).length === 0
 }
 
@@ -128,6 +130,7 @@ onMounted(cargar)
             label="Comentario de la resolución"
             placeholder="Justifica la decisión (mínimo 50 caracteres)"
             :rows="4"
+            :maxlength="1000"
             :error="errors.comentario"
             required
           />
