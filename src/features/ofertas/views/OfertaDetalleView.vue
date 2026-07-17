@@ -46,6 +46,27 @@ onMounted(async () => {
           <p><strong class="text-foreground">Tipo de cambio:</strong> {{ oferta.tipoCambio }}</p>
         </div>
 
+        <!-- Tramos escalonados de una oferta en volumen ETU (US-020). -->
+        <div v-if="oferta.escalones.length" class="mt-4">
+          <p class="mb-1 text-sm font-medium text-foreground">Tipos de cambio escalonados</p>
+          <table class="w-full text-left text-sm">
+            <thead class="text-xs uppercase text-foreground-soft">
+              <tr>
+                <th class="py-1">Desde</th>
+                <th>Hasta</th>
+                <th>Tipo de cambio</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(e, i) in oferta.escalones" :key="i" class="border-t border-border/60">
+                <td class="py-1">{{ e.montoDesde }}</td>
+                <td>{{ e.montoHasta }}</td>
+                <td>{{ e.tipoCambio }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
         <div class="mt-4">
           <RouterLink :to="`/app/transacciones/nueva?ofertaId=${oferta.id}`">
             <BaseButton variant="primary">Iniciar transacción</BaseButton>

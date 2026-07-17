@@ -5,7 +5,11 @@ import { BaseButton, BaseInput, BaseSelect, BaseCard } from '@/components/ui'
 import { useAuthStore } from '@/features/auth/stores/auth.store'
 import { formatMonto } from '@/shared/utils/format'
 import { perfilService, type CuentaBancariaDto } from '@/features/perfil/services/perfil.service'
-import { ofertasService, type OfertaCreatePayload } from '../services/ofertas.service'
+import {
+  ofertasService,
+  type OfertaCreatePayload,
+  type OfertaEscalon,
+} from '../services/ofertas.service'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -27,6 +31,18 @@ const form = reactive<OfertaCreatePayload>({
 const errors = reactive<Record<string, string>>({})
 const serverError = ref('')
 const loading = ref(false)
+
+// US-020 — Tramos escalonados (solo ETU, hasta 3).
+const escalones = ref<OfertaEscalon[]>([])
+
+function agregarEscalon() {
+  if (escalones.value.length >= 3) return
+  escalones.value.push({ montoDesde: 100, montoHasta: form.monto, tipoCambio: form.tipoCambio })
+}
+
+function quitarEscalon(i: number) {
+  escalones.value.splice(i, 1)
+}
 
 const tipoOperacion = [
   { label: 'Venta', value: 'Venta' },
@@ -53,6 +69,17 @@ function validar(): boolean {
     errors.monto = `El monto debe estar entre 100 y ${formatMonto(montoMaximo.value)}`
   if (form.tipoCambio <= 0) errors.tipoCambio = 'El tipo de cambio debe ser mayor a 0'
   if (!form.cuentaBancariaId) errors.cuenta = 'Selecciona una cuenta bancaria'
+
+  // Validación de los tramos escalonados (US-020).
+  if (auth.esEmpresa && escalones.value.length) {
+    for (const [i, e] of escalones.value.entries()) {
+      if (e.montoDesde < 100 || e.montoHasta <= e.montoDesde || e.montoHasta > form.monto || e.tipoCambio <= 0) {
+        errors.escalones = `Revisa el tramo ${i + 1}: el rango debe estar entre 100 y el monto total, y el tipo de cambio ser mayor a 0`
+        break
+      }
+    }
+  }
+
   return Object.keys(errors).length === 0
 }
 
@@ -61,7 +88,10 @@ async function onSubmit() {
   if (!validar()) return
   loading.value = true
   try {
-    await ofertasService.crear({ ...form })
+    await ofertasService.crear({
+      ...form,
+      escalones: auth.esEmpresa && escalones.value.length ? escalones.value : undefined,
+    })
     router.push('/app/ofertas/mias')
   } catch (e: unknown) {
     const err = e as { response?: { data?: { mensaje?: string } } }
@@ -119,6 +149,38 @@ onMounted(async () => {
           placeholder="Selecciona…"
           :error="errors.cuenta"
         />
+
+        <!-- US-020 — Tramos escalonados (solo ETU, hasta 3). -->
+        <div v-if="auth.esEmpresa" class="rounded-base border border-border p-3">
+          <div class="mb-2 flex items-center justify-between">
+            <span class="text-sm font-medium text-foreground">Tramos escalonados (opcional)</span>
+            <BaseButton
+              type="button"
+              variant="secondary"
+              :disabled="escalones.length >= 3"
+              @click="agregarEscalon"
+            >
+              Agregar tramo
+            </BaseButton>
+          </div>
+          <p class="mb-3 text-xs text-foreground-soft">
+            Aplica un tipo de cambio distinto según el rango de monto operado. Para montos fuera de
+            todos los tramos se usa el tipo de cambio base.
+          </p>
+
+          <div
+            v-for="(e, i) in escalones"
+            :key="i"
+            class="mb-2 grid grid-cols-[1fr_1fr_1fr_auto] items-end gap-2"
+          >
+            <BaseInput v-model.number="e.montoDesde" label="Desde" type="number" />
+            <BaseInput v-model.number="e.montoHasta" label="Hasta" type="number" />
+            <BaseInput v-model.number="e.tipoCambio" label="T. cambio" type="number" />
+            <BaseButton type="button" variant="ghost" @click="quitarEscalon(i)">Quitar</BaseButton>
+          </div>
+
+          <p v-if="errors.escalones" class="text-xs text-danger">{{ errors.escalones }}</p>
+        </div>
 
         <p v-if="serverError" class="text-sm text-danger">{{ serverError }}</p>
 
