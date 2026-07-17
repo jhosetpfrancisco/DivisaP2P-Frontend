@@ -5,6 +5,7 @@ import { ofertasRoutes } from '@/features/ofertas/routes'
 import { transaccionesRoutes } from '@/features/transacciones/routes'
 import { perfilRoutes } from '@/features/perfil/routes'
 import { notificacionesRoutes } from '@/features/notificaciones/routes'
+import { adminRoutes } from '@/features/admin/routes'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -24,12 +25,17 @@ const router = createRouter({
       component: AppLayout,
       meta: { requiresAuth: true },
       children: [
-        // /app sin sub-ruta → ofertas por defecto.
-        { path: '', redirect: '/app/ofertas' },
+        // /app sin sub-ruta → el admin va a su panel; el resto a ofertas.
+        {
+          path: '',
+          redirect: () =>
+            localStorage.getItem('rol') === 'ADM' ? '/app/admin/dashboard' : '/app/ofertas',
+        },
         ...ofertasRoutes,
         ...transaccionesRoutes,
         ...perfilRoutes,
         ...notificacionesRoutes,
+        ...adminRoutes,
       ],
     },
 

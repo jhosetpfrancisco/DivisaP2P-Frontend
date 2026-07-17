@@ -20,7 +20,7 @@ const etiquetaRol = computed(() => (auth.rol ? (ETIQUETAS_ROL[auth.rol] ?? auth.
 // El administrador opera sobre el panel; el resto sobre ofertas y transacciones.
 const nav = computed(() =>
   auth.esAdmin
-    ? []
+    ? [{ label: 'Dashboard', to: '/app/admin/dashboard' }]
     : [
         { label: 'Ofertas', to: '/app/ofertas' },
         { label: 'Transacciones', to: '/app/transacciones' },
