@@ -8,4 +8,10 @@ export const adminRoutes: RouteRecordRaw[] = [
     component: () => import('./views/DashboardView.vue'),
     meta: { roles: ['ADM'] },
   },
+  {
+    path: 'admin/usuarios',
+    name: 'admin-usuarios',
+    component: () => import('./views/UsuariosView.vue'),
+    meta: { roles: ['ADM'] },
+  },
 ]
