@@ -7,14 +7,21 @@ import {
 } from '@/shared/utils/format'
 import type { UsuarioAdminDto } from '../services/admin.service'
 
+// Componente modal de solo lectura para mostrar el detalle administrativo de un usuario.
+// Props: recibe el usuario seleccionado; si es null, el modal no renderiza contenido.
 defineProps<{ usuario: UsuarioAdminDto | null }>()
+// Modelo v-model que controla la visibilidad del modal y emite su actualizacion al cerrarlo.
 const open = defineModel<boolean>({ required: true })
 
+// Mapa de roles internos a etiquetas legibles para la vista de administracion.
 const ETIQUETAS_ROL: Record<string, string> = {
   USU: 'Usuario',
   ETU: 'Empresa de turismo',
   ADM: 'Administrador',
 }
+
+// Funciones: este componente no declara funciones propias; delega el formateo a utilidades importadas.
+// Lifecycle hooks: no requiere hooks porque solo depende de props y del estado reactivo del v-model.
 </script>
 
 <template>
